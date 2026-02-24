@@ -57,6 +57,8 @@ public class CCPlayer : MonoBehaviour
     {
         HandleLook();
         HandleMovement();
+        CheckInteract();
+        HandleInteract();
     }
 
     private void HandleLook()
@@ -72,6 +74,7 @@ public class CCPlayer : MonoBehaviour
         pitch -= pitchDelta;
         //clamp to prevent flipping upside down
         pitch = Mathf.Clamp(pitch, min: -90, max: 90);
+        cameraTransform.localRotation = Quaternion.Euler(pitch, 0, 0);
     }
     private void HandleMovement()
     {
@@ -112,6 +115,46 @@ public class CCPlayer : MonoBehaviour
         //convert verticalVelocity into movement vector
         Vector3 velocity = Vector3.up * verticalVelocity;
         cc.Move(motion: (move + velocity) * Time.deltaTime); //finally actually moving the player
+    }
+
+    void CheckInteract()
+    {
+        //reset reticle image to normal color first
+        if (reticleImage != null) reticleImage.color = new Color(0, 0, 0, .7f);
+        //make a ray that goes straight out of the camera(center of screen)
+        //players eyesight
+        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+        RaycastHit hit;
+        //asking unity if it hit something within 3 units
+        //hit stores what we hit like the collider
+        bool didHit = Physics.Raycast(ray, out hit, 3);
+        if (!didHit) return;//if we didn't hit anything start here
+        //if we hit something tagged interactable
+        if (hit.collider.CompareTag("Interactable"))
+        {
+            //store the object so we can destroy or do whatever when the player clicks
+            //currentTarget = hit.collider.gameObject;
+            currrentTarget = hit.collider.gameObject;
+            if (reticleImage != null)
+            {
+                reticleImage.color = Color.red;
+            }
+        }
+
+        Debug.DrawRay(cameraTransform.position, cameraTransform.forward * 3, Color.blue);
+    }
+    void HandleInteract()
+    {
+        //if the player did not press interact this frame do nothing
+        if (!interactPressed) return;
+        //consume the input so one click only triggers one interactions
+        //this changes next frame
+        interactPressed = false;
+        if (currrentTarget == null) return;
+        Destroy(currrentTarget);
+        //clear target reference after destroying
+        currrentTarget = null;
+
     }
 
     public void OnMove(InputAction.CallbackContext context)
