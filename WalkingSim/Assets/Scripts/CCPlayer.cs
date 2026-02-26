@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -31,6 +32,9 @@ public class CCPlayer : MonoBehaviour
     public Image reticleImage;
     private bool interactPressed;
 
+    public static event Action<NPCData> OnDialogueRequested;
+    private Interactable currrentInteractable;
+
     #endregion
 
     private void Awake()
@@ -61,6 +65,7 @@ public class CCPlayer : MonoBehaviour
         HandleInteract();
     }
 
+    #region HANDLES
     private void HandleLook()
     {
         //horiz rotate player
@@ -80,7 +85,7 @@ public class CCPlayer : MonoBehaviour
     {
         //updating player's bool to be true or false whether th eplayer is grounded or not
         bool grounded = cc.isGrounded;
-        Debug.Log("is Grounded" + grounded);
+        //Debug.Log("is Grounded" + grounded);
 
         //keep cc's snapped to ground
         if(grounded && verticalVelocity <= 0)
@@ -116,6 +121,7 @@ public class CCPlayer : MonoBehaviour
         Vector3 velocity = Vector3.up * verticalVelocity;
         cc.Move(motion: (move + velocity) * Time.deltaTime); //finally actually moving the player
     }
+    #endregion 
 
     void CheckInteract()
     {
@@ -124,24 +130,28 @@ public class CCPlayer : MonoBehaviour
         //make a ray that goes straight out of the camera(center of screen)
         //players eyesight
         Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
-        RaycastHit hit;
+        //RaycastHit hit;
         //asking unity if it hit something within 3 units
         //hit stores what we hit like the collider
-        bool didHit = Physics.Raycast(ray, out hit, 3);
-        if (!didHit) return;//if we didn't hit anything start here
+        //bool didHit = Physics.Raycast(ray, out hit, 3);
+        //if (!didHit) return;//if we didn't hit anything start here
         //if we hit something tagged interactable
-        if (hit.collider.CompareTag("Interactable"))
+        if (Physics.Raycast(ray, out RaycastHit hit, 3f))
         {
-            //store the object so we can destroy or do whatever when the player clicks
-            //currentTarget = hit.collider.gameObject;
-            currrentTarget = hit.collider.gameObject;
-            if (reticleImage != null)
+            currrentInteractable = hit.collider.GetComponent<Interactable>();
+            if(currrentInteractable != null && reticleImage != null)
             {
                 reticleImage.color = Color.red;
+                Debug.DrawRay(cameraTransform.position, cameraTransform.forward * 3, Color.blue);
+
+            }
+            else
+            {
+                Debug.DrawRay(cameraTransform.position, cameraTransform.forward * 3, Color.blue);
             }
         }
 
-        Debug.DrawRay(cameraTransform.position, cameraTransform.forward * 3, Color.blue);
+        
     }
     void HandleInteract()
     {
@@ -150,13 +160,11 @@ public class CCPlayer : MonoBehaviour
         //consume the input so one click only triggers one interactions
         //this changes next frame
         interactPressed = false;
-        if (currrentTarget == null) return;
-        Destroy(currrentTarget);
-        //clear target reference after destroying
-        currrentTarget = null;
-
+        if (currrentInteractable == null) return;
+        currrentInteractable.Interact(this);
     }
 
+    #region PLAYERINPUT
     public void OnMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
@@ -182,9 +190,16 @@ public class CCPlayer : MonoBehaviour
     {
         if (context.performed) interactPressed = true;
     }
+    #endregion
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        Debug.Log("CC Collided with: " + hit.gameObject.name);
+        //Debug.Log("CC Collided with: " + hit.gameObject.name);
     }
+
+    public void RequestDialogue(NPCData npcData)
+    {
+        OnDialogueRequested?.Invoke(npcData);
+    }
+
 }
