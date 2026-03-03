@@ -189,6 +189,7 @@ public class CCPlayer : MonoBehaviour
     public void OnInteract(InputAction.CallbackContext context)
     {
         if (context.performed) interactPressed = true;
+        Debug.Log("OnInteract fired.performed=" + context.performed);
     }
     #endregion
 
