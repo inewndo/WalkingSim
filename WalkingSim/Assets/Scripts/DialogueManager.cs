@@ -37,7 +37,7 @@ public class DialogueManager : MonoBehaviour
     private void Update()
     {
         if (!isActive) return; //if no dialogue active then return
-        if(Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+        if(Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame)
         {
             if (ChoicesAreShowing()) return;
             Advanced();
@@ -101,9 +101,11 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        foreach(DialogueChoice choice in choicesContainer)
+        foreach(DialogueChoice choice in choices)
         {
             Button bttn = Instantiate(choiceButtonPrefab, choicesContainer);
+
+            Debug.Log("ButtonSpawm");
 
             TextMeshProUGUI tmp = bttn.GetComponentInChildren<TextMeshProUGUI>();
             if (tmp != null) tmp.text = choice.choiceText;
@@ -125,6 +127,7 @@ public class DialogueManager : MonoBehaviour
         if (HasChoices(currentNode))
         {
             ShowChoices(currentNode.choices);
+            Debug.Log("FinishNode");
             return;
         }
         //auto continue text

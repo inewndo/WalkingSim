@@ -10,15 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a4a0edc7b421b640af1ef2a8e80f007, type: 3}
-  m_Name: New NPC Data
+  m_Name: Second
   m_EditorClassIdentifier: Assembly-CSharp::NPCData
-  displayName: Aristotle
+  displayName: 
   lines:
-  - HI
-  - My name is david
-  choices:
-  - choiceText: NIce to meet you
-    nextNode: {fileID: 11400000, guid: 45f3744cb7ead7c4dbb812ea419ac212, type: 2}
-  - choiceText: Ew
-    nextNode: {fileID: 11400000, guid: cef3891857db92042b931fffbdaa0732, type: 2}
+  - Nice to meet you too
+  choices: []
   nextNode: {fileID: 0}

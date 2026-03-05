@@ -42,8 +42,8 @@ public class CCPlayer : MonoBehaviour
         cc = GetComponent<CharacterController>();
 
         //optional lock cursor
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
 
         //find reticle
         reticleImage = GameObject.Find("Reticle").GetComponent<Image>();
